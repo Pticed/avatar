@@ -75,8 +75,8 @@ module Avatar # :nodoc:
         returning({}) do |result|
           result[:gravatar_field] = options[:gravatar_field] || default_field
           
-          default = options[:gravatar_default_url] || default_avatar_url_for(person, options)
-          raise "default must be a fully-qualified URL with port and host" unless self.class.valid_default_url?(default)
+          default = options[:gravatar_default_url] || default_avatar_url_for(person, options) || options[:d] || options[:default]
+          raise "default must be a fully-qualified URL with port and host or a default avatar type" unless (self.class.valid_default_url?(default) || self.class.valid_default_value?(default))
           result[:default] = default
 
           size = (options[:gravatar_size] || options[:size] || options[:s] || '').to_s.to_i
@@ -105,6 +105,10 @@ module Avatar # :nodoc:
 
       def self.valid_default_url?(url)
         url.nil? || url =~ /^http[s]?\:/
+      end
+
+      def self.valid_default_value?(value)
+        ["404", "mm", "identicon", "monsterid", "wavatar", "retro"].include?(value)
       end
       
       private
